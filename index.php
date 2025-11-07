@@ -47,8 +47,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'terabayasiyuuki@gmail.com'; // あなたのGmail
-            $mail->Password = 'yvvxhksukvxlfbyc';           // アプリパスワード（スペースなし）
+            $mail->Username = 'terabayasiyuuki@gmail.com';
+            $mail->Password = 'yvvxhksukvxlfbyc';
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
             $mail->CharSet = 'UTF-8';
@@ -74,3 +74,52 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>欠食届フォーム</title>
+  <style>
+    body { font-family: sans-serif; background: #fff; color: #000; }
+    label { display: block; margin-top: 10px; }
+    .date-block { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>欠食届フォーム</h1>
+
+  <?php if (!empty($error)): ?>
+    <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
+  <?php endif; ?>
+  <?php if (!empty($success)): ?>
+    <p style="color:green;"><?php echo htmlspecialchars($success); ?></p>
+  <?php endif; ?>
+
+  <form method="post">
+    <label>氏名（必須）</label>
+    <input type="text" name="name" required>
+
+    <label>メールアドレス（任意）</label>
+    <input type="email" name="email">
+
+    <h2>欠食日と食事区分</h2>
+    <div class="date-block">
+      <label>日付（必須）</label>
+      <input type="date" name="dates[0][date]" required>
+      <fieldset>
+        <legend>食事区分（必須）</legend>
+        <label><input type="checkbox" name="dates[0][meals][]" value="朝"> 朝食</label>
+        <label><input type="checkbox" name="dates[0][meals][]" value="昼"> 昼食</label>
+        <label><input type="checkbox" name="dates[0][meals][]" value="夕"> 夕食</label>
+      </fieldset>
+    </div>
+
+    <label>その他連絡事項（任意）</label>
+    <textarea name="notes" rows="4" cols="40"></textarea>
+
+    <button type="submit">送信</button>
+  </form>
+</body>
+</html>
