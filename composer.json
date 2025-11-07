@@ -1,0 +1,6 @@
+{
+  "require": {},
+  "scripts": {
+    "start": "heroku-php-apache2"
+  }
+}
