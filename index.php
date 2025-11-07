@@ -9,68 +9,88 @@ use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/autoload.php';
 
+// CSRFトークン生成
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $error = "";
-$success = "";
 
+// フォーム送信処理
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $officeEmail = "terabayashi-yuuki.b24@mhlw.go.jp";
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $dates = $_POST['dates'];
-    $notes = trim($_POST['notes']);
-
-    if (empty($name)) {
-        $error = "氏名は必須です。";
+    // CSRFトークン検証
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $error = "不正な送信が検出されました。";
     } else {
-        $validDates = [];
-        foreach ($dates as $d) {
-            if (!empty($d['date']) && !empty($d['meals'])) {
-                $validDates[] = $d;
+        $officeEmail = "terabayashi-yuuki.b24@mhlw.go.jp";
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $dates = $_POST['dates'] ?? [];
+        $notes = trim($_POST['notes'] ?? '');
+
+        if (empty($name)) {
+            $error = "氏名は必須です。";
+        } else {
+            $validDates = [];
+            if (is_array($dates)) {
+                foreach ($dates as $d) {
+                    if (
+                        isset($d['date']) && !empty($d['date']) &&
+                        isset($d['meals']) && is_array($d['meals']) && count($d['meals']) > 0
+                    ) {
+                        $validDates[] = $d;
+                    }
+                }
+            }
+            if (count($validDates) === 0) {
+                $error = "少なくとも1つの日付と食事区分を入力してください。";
             }
         }
-        if (count($validDates) === 0) {
-            $error = "少なくとも1つの日付と食事区分を入力してください。";
-        }
-    }
 
-    if (empty($error)) {
-        $message = "氏名: {$name}\n\n欠食予定:\n";
-        foreach ($validDates as $d) {
-            $mealList = implode(", ", $d['meals']);
-            $message .= "・{$d['date']} → {$mealList}\n";
-        }
-        if (!empty($notes)) {
-            $message .= "\nその他連絡事項:\n{$notes}\n";
-        }
+        if (empty($error)) {
+            $message = "氏名: {$name}\n\n欠食予定:\n";
+            foreach ($validDates as $d) {
+                $mealList = implode(", ", $d['meals']);
+                $message .= "・{$d['date']} → {$mealList}\n";
+            }
+            if (!empty($notes)) {
+                $message .= "\nその他連絡事項:\n{$notes}\n";
+            }
 
-        try {
-            $mail = new PHPMailer(true);
-            $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'terabayasiyuuki@gmail.com';
-            $mail->Password = 'yvvxhksukvxlfbyc';
-            $mail->SMTPSecure = 'tls';
-            $mail->Port = 587;
-            $mail->CharSet = 'UTF-8';
+            // ログ出力（Herokuログに送信内容を記録）
+            file_put_contents("php://stderr", "送信内容:\n" . $message);
 
-            $mail->setFrom('terabayasiyuuki@gmail.com', '欠食届フォーム');
-            $mail->addAddress($officeEmail);
-            $mail->Subject = '欠食届';
-            $mail->Body = $message;
-            $mail->send();
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'terabayasiyuuki@gmail.com';
+                $mail->Password = 'yvvxhksukvxlfbyc';
+                $mail->SMTPSecure = 'tls';
+                $mail->Port = 587;
+                $mail->CharSet = 'UTF-8';
 
-            if (!empty($email)) {
-                $mail->clearAddresses();
-                $mail->addAddress($email);
-                $mail->Subject = '【確認】欠食届を受け付けました';
-                $mail->Body = "以下の内容で欠食届を受け付けました。\n\n" . $message;
+                $mail->setFrom('terabayasiyuuki@gmail.com', '欠食届フォーム');
+                $mail->addAddress($officeEmail);
+                $mail->Subject = '欠食届';
+                $mail->Body = $message;
                 $mail->send();
-            }
 
-            $success = "送信しました。";
-        } catch (Exception $e) {
-            $error = "メールの送信に失敗しました: " . $mail->ErrorInfo;
+                if (!empty($email)) {
+                    $mail->clearAddresses();
+                    $mail->addAddress($email);
+                    $mail->Subject = '【確認】欠食届を受け付けました';
+                    $mail->Body = "以下の内容で欠食届を受け付けました。\n\n" . $message;
+                    $mail->send();
+                }
+
+                // リダイレクトして再送信防止
+                header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
+                exit;
+            } catch (Exception $e) {
+                $error = "メールの送信に失敗しました: " . $mail->ErrorInfo;
+            }
         }
     }
 }
@@ -94,33 +114,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <?php if (!empty($error)): ?>
     <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
   <?php endif; ?>
-  <?php if (!empty($success)): ?>
-    <p style="color:green;"><?php echo htmlspecialchars($success); ?></p>
+  <?php if (isset($_GET['success'])): ?>
+    <p style="color:green;">送信しました。</p>
   <?php endif; ?>
 
   <form method="post">
+    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+
     <label>氏名（必須）</label>
-    <input type="text" name="name" required>
+    <input type="text" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
 
     <label>メールアドレス（任意）</label>
-    <input type="email" name="email">
+    <input type="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
 
     <h2>欠食日と食事区分</h2>
     <div class="date-block">
       <label>日付（必須）</label>
-      <input type="date" name="dates[0][date]" required>
+      <input type="date" name="dates[0][date]" required value="<?php echo htmlspecialchars($_POST['dates'][0]['date'] ?? ''); ?>">
       <fieldset>
         <legend>食事区分（必須）</legend>
-        <label><input type="checkbox" name="dates[0][meals][]" value="朝"> 朝食</label>
-        <label><input type="checkbox" name="dates[0][meals][]" value="昼"> 昼食</label>
-        <label><input type="checkbox" name="dates[0][meals][]" value="夕"> 夕食</label>
+        <?php
+        $meals = $_POST['dates'][0]['meals'] ?? [];
+        ?>
+        <label><input type="checkbox" name="dates[0][meals][]" value="朝" <?php echo in_array("朝", $meals) ? "checked" : ""; ?>> 朝食</label>
+        <label><input type="checkbox" name="dates[0][meals][]" value="昼" <?php echo in_array("昼", $meals) ? "checked" : ""; ?>> 昼食</label>
+        <label><input type="checkbox" name="dates[0][meals][]" value="夕" <?php echo in_array("夕", $meals) ? "checked" : ""; ?>> 夕食</label>
       </fieldset>
     </div>
 
     <label>その他連絡事項（任意）</label>
-    <textarea name="notes" rows="4" cols="40"></textarea>
+    <textarea name="notes" rows="4" cols="40"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
 
     <button type="submit">送信</button>
   </form>
 </body>
 </html>
+
