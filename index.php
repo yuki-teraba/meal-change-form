@@ -173,7 +173,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     document.querySelector("#mealForm").addEventListener("submit", function(e) {
-      let dateBlocks = document.querySelectorAll(".date-block");
+     const name = document.querySelector("input[name='name']").value.trim();
+  if (name === "") {
+    alert("氏名を入力してください。");
+    e.preventDefault();
+    return;
+  }
+ let dateBlocks = document.querySelectorAll(".date-block");
       let hasValidDate = false;
 
       dateBlocks.forEach(block => {
