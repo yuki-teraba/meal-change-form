@@ -103,13 +103,57 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>欠食届フォーム</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>欠食届フォーム</title>
   <style>
     body { font-family: sans-serif; background: #fff; color: #000; }
     label { display: block; margin-top: 10px; }
     .date-block { border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
     button { margin-top: 10px; }
-  </style>
+/* スマホ対応のスタイル追加 */
+  form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-top: 5px;
+  }
+
+  fieldset {
+    border: none;
+    padding: 0;
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 600px) {
+    body {
+      font-size: 16px;
+      padding: 10px;
+    }
+
+    .date-block {
+      padding: 10px;
+      margin-top: 15px;
+    }
+
+    label {
+      margin-top: 15px;
+    }
+  }
+</style>
 </head>
 <body>
   <h1>欠食届フォーム</h1>
@@ -121,7 +165,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <p style="color:green;">送信しました。</p>
   <?php endif; ?>
 
-  <form method="post" id="mealForm">
+<form method="post" id="mealForm" novalidate>
+
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
     <label>氏名</label>
