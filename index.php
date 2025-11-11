@@ -127,26 +127,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <label>メールアドレス（任意）</label>
     <input type="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
 
-    <h2>欠食日と食事区分</h2>
-    <div class="date-block">
-      <label>日付（必須）</label>
-      <input type="date" name="dates[0][date]" required value="<?php echo htmlspecialchars($_POST['dates'][0]['date'] ?? ''); ?>">
-      <fieldset>
-        <legend>食事区分（必須）</legend>
-        <?php
-        $meals = $_POST['dates'][0]['meals'] ?? [];
-        ?>
-        <label><input type="checkbox" name="dates[0][meals][]" value="朝" <?php echo in_array("朝", $meals) ? "checked" : ""; ?>> 朝食</label>
-        <label><input type="checkbox" name="dates[0][meals][]" value="昼" <?php echo in_array("昼", $meals) ? "checked" : ""; ?>> 昼食</label>
-        <label><input type="checkbox" name="dates[0][meals][]" value="夕" <?php echo in_array("夕", $meals) ? "checked" : ""; ?>> 夕食</label>
-      </fieldset>
-    </div>
+<h2>欠食日と食事区分</h2>
+<div id="date-blocks">
+  <div class="date-block">
+    <label>日付（必須）</label>
+    <input type="date" name="dates[0][date]" required value="<?php echo htmlspecialchars($_POST['dates'][0]['date'] ?? ''); ?>">
+    <fieldset>
+      <legend>食事区分（必須）</legend>
+      <?php $meals = $_POST['dates'][0]['meals'] ?? []; ?>
+      <label><input type="checkbox" name="dates[0][meals][]" value="朝" <?php echo in_array("朝", $meals) ? "checked" : ""; ?>> 朝食</label>
+      <label><input type="checkbox" name="dates[0][meals][]" value="昼" <?php echo in_array("昼", $meals) ? "checked" : ""; ?>> 昼食</label>
+      <label><input type="checkbox" name="dates[0][meals][]" value="夕" <?php echo in_array("夕", $meals) ? "checked" : ""; ?>> 夕食</label>
+    </fieldset>
+  </div>
+</div>
+
 
     <label>その他連絡事項（任意）</label>
     <textarea name="notes" rows="4" cols="40"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
-
-    <button type="submit">送信</button>
+   <button type="button" onclick="addDateBlock()">日付を追加</button>
+ <button type="submit">送信</button>
   </form>
+<script>
+let dateIndex = 1;
+
+function addDateBlock() {
+  const container = document.createElement("div");
+  container.className = "date-block";
+  container.innerHTML = `
+    <label>日付（必須）</label>
+    <input type="date" name="dates[${dateIndex}][date]" required>
+
+    <fieldset>
+      <legend>食事区分（必須）</legend>
+      <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="朝"> 朝食</label>
+      <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="昼"> 昼食</label>
+      <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="夕"> 夕食</label>
+    </fieldset>
+  `;
+  document.getElementById("date-blocks").appendChild(container);
+  dateIndex++;
+}
+</script>
+
 </body>
 </html>
 
