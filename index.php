@@ -125,7 +125,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
     <label>氏名</label>
-    <input type="text" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
+<input type="text" name="name">
+
 
     <label>メールアドレス</label>
     <input type="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
