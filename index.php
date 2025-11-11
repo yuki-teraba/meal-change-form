@@ -33,14 +33,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $validDates = [];
             if (is_array($dates)) {
-                foreach ($dates as $d) {
-                    if (
-                        isset($d['date']) && !empty($d['date']) &&
-                        isset($d['meals']) && is_array($d['meals']) && count($d['meals']) > 0
-                    ) {
-                        $validDates[] = $d;
-                    }
-                }
+$validDates = [];
+foreach ($dates as $d) {
+    $date = trim($d['date'] ?? '');
+    $meals = $d['meals'] ?? [];
+
+    if ($date !== '' || (is_array($meals) && count($meals) > 0)) {
+        $validDates[] = [
+            'date' => $date,
+            'meals' => $meals
+        ];
+    }
+}
+
+
             }
             if (count($validDates) === 0) {
                 $error = "少なくとも1つの日付と食事区分を入力してください。";
@@ -50,8 +56,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (empty($error)) {
             $message = "氏名: {$name}\n\n欠食予定:\n";
             foreach ($validDates as $d) {
-                $mealList = implode(", ", $d['meals']);
-                $message .= "・{$d['date']} → {$mealList}\n";
+                $mealList = !empty($d['meals']) ? implode(", ", $d['meals']) : "（食事区分なし）";
+$dateText = !empty($d['date']) ? $d['date'] : "（日付なし）";
+$message .= "・{$dateText} → {$mealList}\n";
+
             }
             if (!empty($notes)) {
                 $message .= "\nその他連絡事項:\n{$notes}\n";
@@ -121,7 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <form method="post">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
-    <label>氏名（必須）</label>
+    <label>氏名</label>
     <input type="text" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
 
     <label>メールアドレス（任意）</label>
@@ -130,10 +138,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <h2>欠食日と食事区分</h2>
 <div id="date-blocks">
   <div class="date-block">
-    <label>日付（必須）</label>
-    <input type="date" name="dates[0][date]" required value="<?php echo htmlspecialchars($_POST['dates'][0]['date'] ?? ''); ?>">
+    <label>日付</label>
+    <input type="date" name="dates[0][date]"  value="<?php echo htmlspecialchars($_POST['dates'][0]['date'] ?? ''); ?>">
     <fieldset>
-      <legend>食事区分（必須）</legend>
+      <legend>食事区分</legend>
       <?php $meals = $_POST['dates'][0]['meals'] ?? []; ?>
       <label><input type="checkbox" name="dates[0][meals][]" value="朝" <?php echo in_array("朝", $meals) ? "checked" : ""; ?>> 朝食</label>
       <label><input type="checkbox" name="dates[0][meals][]" value="昼" <?php echo in_array("昼", $meals) ? "checked" : ""; ?>> 昼食</label>
@@ -155,11 +163,11 @@ function addDateBlock() {
   const container = document.createElement("div");
   container.className = "date-block";
   container.innerHTML = `
-    <label>日付（必須）</label>
-    <input type="date" name="dates[${dateIndex}][date]" required>
+    <label>日付</label>
+    <input type="date" name="dates[${dateIndex}][date]" >
 
     <fieldset>
-      <legend>食事区分（必須）</legend>
+      <legend>食事区分</legend>
       <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="朝"> 朝食</label>
       <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="昼"> 昼食</label>
       <label><input type="checkbox" name="dates[${dateIndex}][meals][]" value="夕"> 夕食</label>
