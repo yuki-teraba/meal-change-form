@@ -49,7 +49,7 @@ foreach ($dates as $d) {
 
             }
            if (count($validDates) === 0 && empty($notes)) {
-    $error = "少なくとも欠食日と食事区分のセット、またはその他連絡事項を入力してください。";
+    $error = "少なくとも欠食日と食事区分、またはその他連絡事項を入力してください。";
 }
         }
 
@@ -126,7 +126,7 @@ $message .= "・{$dateText} → {$mealList}\n";
     <p style="color:green;">送信しました。</p>
   <?php endif; ?>
 
-  <form method="post">
+<form method="post" id="mealForm">
     <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
 
     <label>氏名</label>
@@ -176,6 +176,27 @@ function addDateBlock() {
   document.getElementById("date-blocks").appendChild(container);
   dateIndex++;
 }
+
+document.querySelector("#mealForm").addEventListener("submit", function(e) {
+
+  let dateBlocks = document.querySelectorAll(".date-block");
+  let hasValidDate = false;
+
+  dateBlocks.forEach(block => {
+    const date = block.querySelector("input[type='date']").value;
+    const meals = block.querySelectorAll("input[type='checkbox']:checked");
+    if (date || meals.length > 0) {
+      hasValidDate = true;
+    }
+  });
+
+  const notes = document.querySelector("textarea[name='notes']").value.trim();
+
+  if (!hasValidDate && notes === "") {
+    alert("少なくとも欠食日と食事区分のセット、またはその他連絡事項を入力してください。");
+    e.preventDefault(); // 送信を止める
+  }
+});
 </script>
 
 </body>
