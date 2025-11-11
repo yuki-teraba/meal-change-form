@@ -132,7 +132,7 @@ $message .= "・{$dateText} → {$mealList}\n";
     <label>氏名</label>
     <input type="text" name="name" required value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>">
 
-    <label>メールアドレス（任意）</label>
+    <label>メールアドレス</label>
     <input type="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
 
 <h2>欠食日と食事区分</h2>
@@ -151,7 +151,7 @@ $message .= "・{$dateText} → {$mealList}\n";
 </div>
 
 
-    <label>その他連絡事項（任意）</label>
+    <label>その他連絡事項</label>
     <textarea name="notes" rows="4" cols="40"><?php echo htmlspecialchars($_POST['notes'] ?? ''); ?></textarea>
    <button type="button" onclick="addDateBlock()">日付を追加</button>
  <button type="submit">送信</button>
