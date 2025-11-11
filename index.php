@@ -48,9 +48,9 @@ foreach ($dates as $d) {
 
 
             }
-            if (count($validDates) === 0) {
-                $error = "少なくとも1つの日付と食事区分を入力してください。";
-            }
+           if (count($validDates) === 0 && empty($notes)) {
+    $error = "少なくとも欠食日と食事区分のセット、またはその他連絡事項を入力してください。";
+}
         }
 
         if (empty($error)) {
