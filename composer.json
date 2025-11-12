@@ -1,13 +1,5 @@
-{
-  "require": {
-    "phpmailer/phpmailer": "^6.8"
-  },
-  "scripts": {
-    "start": "heroku-php-apache2"
-  },
-  "extra": {
-    "heroku": {
-      "webroot": "."
-    }
+"extra": {
+  "heroku": {
+    "webroot": "public"
   }
 }
