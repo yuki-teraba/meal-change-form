@@ -76,17 +76,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $mail->Port = 587;
                 $mail->CharSet = 'UTF-8';
 
-                $mail->setFrom('terabayasiyuuki@gmail.com', '欠食届フォーム');
+                $mail->setFrom('terabayasiyuuki@gmail.com', '食事変更届');
                 $mail->addAddress($officeEmail);
-                $mail->Subject = '欠食届';
+                $mail->Subject = '食事変更届';
                 $mail->Body = $message;
                 $mail->send();
 
                 if (!empty($email)) {
                     $mail->clearAddresses();
                     $mail->addAddress($email);
-                    $mail->Subject = '【確認】欠食届を受け付けました';
-                    $mail->Body = "以下の内容で欠食届を受け付けました。\n\n" . $message;
+                    $mail->Subject = '【確認】食事変更届を受け付けました';
+                    $mail->Body = "以下の内容で食事変更届を受け付けました。\n\n" . $message;
                     $mail->send();
                 }
 
@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>欠食届フォーム</title>
+ <title>食事変更届</title>
   <style>
     body { font-family: sans-serif; background: #fff; color: #000; }
     label { display: block; margin-top: 10px; }
@@ -156,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </style>
 </head>
 <body>
-  <h1>欠食届フォーム</h1>
+  <h1>食事変更届</h1>
 
   <?php if (!empty($error)): ?>
     <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
