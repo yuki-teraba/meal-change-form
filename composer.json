@@ -1,6 +1,10 @@
-"extra": {
-  "heroku": {
-    "webroot": "public"
+{
+  "require": {
+    "phpmailer/phpmailer": "^6.8"
+  },
+  "extra": {
+    "heroku": {
+      "webroot": "public"
+    }
   }
 }
-
