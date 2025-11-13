@@ -1,8 +1,15 @@
 <?php
+// セッション保存先を明示的に指定
+ini_set('session.save_path', '/var/lib/php/sessions');
+
+// セッション開始
 session_start();
+
+// エラー表示を有効化
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
