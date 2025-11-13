@@ -84,11 +84,17 @@ $mail->Password = getenv('MAIL_PASSWORD');
                 $mail->Port = 587;
                 $mail->CharSet = 'UTF-8';
 
-                $mail->setFrom('terabayasiyuuki@gmail.com', '食事変更届');
-                $mail->addAddress($officeEmail);
-                $mail->Subject = '食事変更届';
-                $mail->Body = $message;
-                $mail->send();
+               $mail->setFrom('terabayasiyuuki@gmail.com', '食事変更届');
+$mail->addAddress($officeEmail);
+$mail->Subject = '食事変更届';
+$mail->Body = $message;
+
+if (!$mail->send()) {
+    echo "メールの送信に失敗しました: " . $mail->ErrorInfo;
+} else {
+    echo "送信しました。";
+}
+
 
                 if (!empty($email)) {
                     $mail->clearAddresses();
