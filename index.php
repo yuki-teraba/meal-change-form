@@ -1,44 +1,35 @@
 <?php
 ini_set('session.save_path', '/var/lib/php/sessions');
-session_start();
-
-// デバッグ用: セッションの中身を表示
-var_dump($_SESSION);
-
-
-// セッション開始
-session_start();
-
-// デバッグ用: セッションの中身を表示
-var_dump($_SESSION);
-
-// セッション開始
-session_start();
+session_start();  // ←ここだけでOK
 
 // エラー表示を有効化
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 require __DIR__ . '/vendor/autoload.php';
-
 
 // CSRFトークン生成
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// デバッグ用: トークン生成直後のセッションを表示
+echo "<pre>";
+var_dump($_SESSION);
+echo "</pre>";
+
 $error = "";
 
 // フォーム送信処理
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $error = "不正な送信が検出されました。";
-    } else {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    $error = "不正な送信が検出されました。";
+}
+ else {
         $officeEmail = "terabayashi-yuuki.b24@mhlw.go.jp";
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
