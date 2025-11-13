@@ -20,4 +20,13 @@ RUN mv public/* /var/www/html/
 CMD ["apache2-foreground"]
 
 WORKDIR /var/www/html
+
+# publicフォルダの中身をコピーしてドキュメントルートに配置
+COPY public/ /var/www/html/
+
+# Composer install を実行して vendor を生成
 RUN composer install
+
+# Apacheを起動
+CMD ["apache2-foreground"]
+
