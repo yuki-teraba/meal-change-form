@@ -1,6 +1,10 @@
 <?php
-// セッション保存先を明示的に指定
 ini_set('session.save_path', '/var/lib/php/sessions');
+session_start();
+
+// デバッグ用: セッションの中身を表示
+var_dump($_SESSION);
+
 
 // セッション開始
 session_start();
