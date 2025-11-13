@@ -7,7 +7,8 @@ error_reporting(E_ALL);
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
 
 // CSRFトークン生成
 if (empty($_SESSION['csrf_token'])) {

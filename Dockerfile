@@ -18,3 +18,6 @@ RUN mv public/* /var/www/html/
 
 # Apacheを起動
 CMD ["apache2-foreground"]
+
+WORKDIR /var/www/html
+RUN composer install
