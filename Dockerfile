@@ -11,22 +11,22 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # プロジェクトをコピー
 COPY . /var/www/html/
 
-# public をドキュメントルートに設定
+# publicフォルダの中身をドキュメントルートに配置
 WORKDIR /var/www/html
 RUN rm -rf /var/www/html/index.html
-RUN mv public/* /var/www/html/
-
-# Apacheを起動
-CMD ["apache2-foreground"]
-
-WORKDIR /var/www/html
-
-# publicフォルダの中身をコピーしてドキュメントルートに配置
 COPY public/ /var/www/html/
 
 # Composer install を実行して vendor を生成
 RUN composer install
 
+# セッション保存用ディレクトリを作成
+RUN mkdir -p /var/lib/php/sessions && chmod 777 /var/lib/php/sessions
+
+# PHP設定を追加
+RUN echo "session.save_path = /var/lib/php/sessions" >> /usr/local/etc/php/conf.d/session.ini
+
 # Apacheを起動
 CMD ["apache2-foreground"]
+
+
 
