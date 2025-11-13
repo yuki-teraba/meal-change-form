@@ -70,8 +70,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'terabayasiyuuki@gmail.com';
-                $mail->Password = 'yvvxhksukvxlfbyc';
+                $mail->Username = getenv('MAIL_USERNAME');
+$mail->Password = getenv('MAIL_PASSWORD');
+
                 $mail->SMTPSecure = 'tls';
                 $mail->Port = 587;
                 $mail->CharSet = 'UTF-8';
